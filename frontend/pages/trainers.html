@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trainers — GymMS</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+  <!-- ── Sidebar ───────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">G</div>
+      <div class="logo-text">GymMS <span>Management System</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Main</div>
+      <a class="nav-item" data-page="dashboard" href="../index.html">
+        <span class="nav-icon">🏠</span> Dashboard
+      </a>
+      <div class="nav-label">Records</div>
+      <a class="nav-item" data-page="members" href="members.html">
+        <span class="nav-icon">👥</span> Members
+      </a>
+      <a class="nav-item active" data-page="trainers" href="trainers.html">
+        <span class="nav-icon">🏋️</span> Trainers
+      </a>
+      <a class="nav-item" data-page="plans" href="plans.html">
+        <span class="nav-icon">📋</span> Membership Plans
+      </a>
+      <div class="nav-label">Store</div>
+      <a class="nav-item" data-page="products" href="products.html">
+        <span class="nav-icon">🛒</span> Products
+      </a>
+      <a class="nav-item" data-page="purchases" href="purchases.html">
+        <span class="nav-icon">💳</span> Purchases
+      </a>
+    </nav>
+  </aside>
+
+  <!-- ── Main ──────────────────────────────────────────────── -->
+  <div class="main-wrap">
+    <header class="topbar">
+      <div>
+        <div class="topbar-title">Trainers</div>
+        <div class="topbar-subtitle">Manage gym trainers & specializations</div>
+      </div>
+      <div class="topbar-right">
+        <div class="search-bar">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" placeholder="Search trainers…" />
+        </div>
+        <button class="btn btn-primary" onclick="openModal('add-modal')">
+          ＋ Add Trainer
+        </button>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <!-- Trainer Cards Grid -->
+      <div id="trainer-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;margin-bottom:32px"></div>
+
+      <!-- Trainer Table -->
+      <div class="section-header">
+        <span class="section-title">All <span>Trainers</span></span>
+      </div>
+      <div class="table-wrap">
+        <table id="trainers-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Specialization</th>
+              <th>Phone</th>
+              <th>Salary</th>
+              <th>Members Assigned</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="trainers-tbody"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- ── Add Trainer Modal ─────────────────────────────────── -->
+  <div class="modal-overlay" id="add-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Add New Trainer</span>
+        <button class="modal-close" onclick="closeModal('add-modal')">✕</button>
+      </div>
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label>Full Name *</label>
+          <input type="text" id="f-name" placeholder="e.g. Rohit Sharma" />
+        </div>
+        <div class="form-group">
+          <label>Specialization *</label>
+          <input type="text" id="f-spec" placeholder="e.g. Strength Training" />
+        </div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="tel" id="f-phone" placeholder="10-digit number" />
+        </div>
+        <div class="form-group">
+          <label>Monthly Salary (₹) *</label>
+          <input type="number" id="f-salary" min="0" placeholder="28000" />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="addTrainer()">Save Trainer</button>
+        <button class="btn btn-ghost" onclick="closeModal('add-modal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Edit Trainer Modal ────────────────────────────────── -->
+  <div class="modal-overlay" id="edit-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Edit Trainer</span>
+        <button class="modal-close" onclick="closeModal('edit-modal')">✕</button>
+      </div>
+      <input type="hidden" id="ef-id" />
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label>Full Name *</label>
+          <input type="text" id="ef-name" />
+        </div>
+        <div class="form-group">
+          <label>Specialization *</label>
+          <input type="text" id="ef-spec" />
+        </div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="tel" id="ef-phone" />
+        </div>
+        <div class="form-group">
+          <label>Monthly Salary (₹) *</label>
+          <input type="number" id="ef-salary" min="0" />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="saveEdit()">Update Trainer</button>
+        <button class="btn btn-ghost" onclick="closeModal('edit-modal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    const SPEC_ICONS = {
+      'Strength': '💪', 'Yoga': '🧘', 'Cardio': '🏃', 'Zumba': '💃',
+      'HIIT': '🔥', 'Dance': '🎵', 'Boxing': '🥊', 'Pilates': '🤸',
+    };
+    function specIcon(spec) {
+      for (const [k, v] of Object.entries(SPEC_ICONS)) {
+        if (spec.includes(k)) return v;
+      }
+      return '🏋️';
+    }
+
+    function renderPage() {
+      const trainers = DB.get('trainers');
+      const members  = DB.get('members');
+      const memberCount = {};
+      members.forEach(m => { memberCount[m.trainer_id] = (memberCount[m.trainer_id] || 0) + 1; });
+
+      /* Cards */
+      document.getElementById('trainer-cards').innerHTML = trainers.map(t => `
+        <div class="stat-card" style="gap:14px">
+          <div style="font-size:36px">${specIcon(t.specialization)}</div>
+          <div>
+            <div class="fw-bold" style="font-size:16px;margin-bottom:4px">${t.trainer_name}</div>
+            <div style="font-size:12px;color:var(--accent);font-weight:600;letter-spacing:0.5px">${t.specialization}</div>
+          </div>
+          <div style="display:flex;gap:12px;margin-top:4px">
+            <div style="font-size:12px;color:var(--text-muted)">
+              👥 <strong style="color:var(--text-primary)">${memberCount[t.id] || 0}</strong> members
+            </div>
+            <div style="font-size:12px;color:var(--text-muted)">
+              💰 <strong style="color:var(--text-primary)">${fmt.currency(t.salary)}</strong>/mo
+            </div>
+          </div>
+        </div>
+      `).join('') || '<div class="empty-state"><div class="empty-icon">🏋️</div><p>No trainers added yet.</p></div>';
+
+      /* Table */
+      document.getElementById('trainers-tbody').innerHTML = trainers.length
+        ? trainers.map(t => `
+          <tr>
+            <td class="td-muted">${t.id}</td>
+            <td class="fw-bold">${t.trainer_name}</td>
+            <td><span class="badge badge-blue">${t.specialization}</span></td>
+            <td class="td-muted">${t.phone || '—'}</td>
+            <td class="text-green fw-bold">${fmt.currency(t.salary)}</td>
+            <td>
+              <span class="badge badge-amber">${memberCount[t.id] || 0} members</span>
+            </td>
+            <td>
+              <div class="td-actions">
+                <button class="btn btn-ghost btn-sm" onclick="editTrainer(${t.id})">✏️ Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteTrainer(${t.id})">🗑 Delete</button>
+              </div>
+            </td>
+          </tr>
+        `).join('')
+        : '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">🏋️</div><p>No trainers yet.</p></div></td></tr>';
+
+      setupTableSearch('search-input', 'trainers-table');
+    }
+
+    function addTrainer() {
+      const name   = document.getElementById('f-name').value.trim();
+      const spec   = document.getElementById('f-spec').value.trim();
+      const salary = document.getElementById('f-salary').value;
+      if (!name || !spec || !salary) { showToast('Please fill all required fields.', 'error'); return; }
+      DB.insert('trainers', { trainer_name: name, specialization: spec, phone: document.getElementById('f-phone').value, salary: +salary });
+      closeModal('add-modal');
+      ['f-name','f-spec','f-phone','f-salary'].forEach(id => document.getElementById(id).value = '');
+      renderPage();
+      showToast(`Trainer "${name}" added!`);
+    }
+
+    function editTrainer(id) {
+      const t = DB.get('trainers').find(r => r.id === id);
+      if (!t) return;
+      document.getElementById('ef-id').value    = t.id;
+      document.getElementById('ef-name').value  = t.trainer_name;
+      document.getElementById('ef-spec').value  = t.specialization;
+      document.getElementById('ef-phone').value = t.phone;
+      document.getElementById('ef-salary').value = t.salary;
+      openModal('edit-modal');
+    }
+
+    function saveEdit() {
+      const id   = +document.getElementById('ef-id').value;
+      const name = document.getElementById('ef-name').value.trim();
+      if (!name) { showToast('Name is required.', 'error'); return; }
+      DB.update('trainers', id, {
+        trainer_name: name,
+        specialization: document.getElementById('ef-spec').value,
+        phone: document.getElementById('ef-phone').value,
+        salary: +document.getElementById('ef-salary').value,
+      });
+      closeModal('edit-modal');
+      renderPage();
+      showToast(`Trainer "${name}" updated.`);
+    }
+
+    function deleteTrainer(id) {
+      const t = DB.get('trainers').find(r => r.id === id);
+      if (!confirm(`Delete trainer "${t?.trainer_name}"?`)) return;
+      DB.delete('trainers', id);
+      renderPage();
+      showToast('Trainer deleted.', 'error');
+    }
+
+    renderPage();
+  </script>
+</body>
+</html>

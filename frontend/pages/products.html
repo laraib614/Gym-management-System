@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Products — GymMS</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+  <!-- ── Sidebar ───────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">G</div>
+      <div class="logo-text">GymMS <span>Management System</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Main</div>
+      <a class="nav-item" data-page="dashboard" href="../index.html">
+        <span class="nav-icon">🏠</span> Dashboard
+      </a>
+      <div class="nav-label">Records</div>
+      <a class="nav-item" data-page="members" href="members.html">
+        <span class="nav-icon">👥</span> Members
+      </a>
+      <a class="nav-item" data-page="trainers" href="trainers.html">
+        <span class="nav-icon">🏋️</span> Trainers
+      </a>
+      <a class="nav-item" data-page="plans" href="plans.html">
+        <span class="nav-icon">📋</span> Membership Plans
+      </a>
+      <div class="nav-label">Store</div>
+      <a class="nav-item active" data-page="products" href="products.html">
+        <span class="nav-icon">🛒</span> Products
+      </a>
+      <a class="nav-item" data-page="purchases" href="purchases.html">
+        <span class="nav-icon">💳</span> Purchases
+      </a>
+    </nav>
+  </aside>
+
+  <!-- ── Main ──────────────────────────────────────────────── -->
+  <div class="main-wrap">
+    <header class="topbar">
+      <div>
+        <div class="topbar-title">Products</div>
+        <div class="topbar-subtitle">Supplements, accessories & equipment</div>
+      </div>
+      <div class="topbar-right">
+        <!-- Category filter -->
+        <select id="category-filter" style="height:38px;padding:0 12px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text-secondary);font-size:14px;outline:none">
+          <option value="">All Categories</option>
+          <option>Supplement</option>
+          <option>Accessory</option>
+          <option>Equipment</option>
+        </select>
+        <div class="search-bar">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" placeholder="Search products…" />
+        </div>
+        <button class="btn btn-primary" onclick="openModal('add-modal')">
+          ＋ Add Product
+        </button>
+      </div>
+    </header>
+
+    <main class="page-content">
+      <div class="table-wrap">
+        <table id="products-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Product Name</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Stock Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="products-tbody"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- ── Add Product Modal ─────────────────────────────────── -->
+  <div class="modal-overlay" id="add-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Add New Product</span>
+        <button class="modal-close" onclick="closeModal('add-modal')">✕</button>
+      </div>
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label>Product Name *</label>
+          <input type="text" id="f-name" placeholder="e.g. Whey Protein 1kg" />
+        </div>
+        <div class="form-group">
+          <label>Category *</label>
+          <select id="f-cat">
+            <option value="">Select…</option>
+            <option>Supplement</option>
+            <option>Accessory</option>
+            <option>Equipment</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Price (₹) *</label>
+          <input type="number" id="f-price" min="0" placeholder="1499" />
+        </div>
+        <div class="form-group">
+          <label>Stock Quantity *</label>
+          <input type="number" id="f-stock" min="0" placeholder="50" />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="addProduct()">Save Product</button>
+        <button class="btn btn-ghost" onclick="closeModal('add-modal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Edit Product Modal ────────────────────────────────── -->
+  <div class="modal-overlay" id="edit-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Edit Product</span>
+        <button class="modal-close" onclick="closeModal('edit-modal')">✕</button>
+      </div>
+      <input type="hidden" id="ef-id" />
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label>Product Name *</label>
+          <input type="text" id="ef-name" />
+        </div>
+        <div class="form-group">
+          <label>Category *</label>
+          <select id="ef-cat">
+            <option>Supplement</option>
+            <option>Accessory</option>
+            <option>Equipment</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Price (₹) *</label>
+          <input type="number" id="ef-price" min="0" />
+        </div>
+        <div class="form-group">
+          <label>Stock Quantity *</label>
+          <input type="number" id="ef-stock" min="0" />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="saveEdit()">Update Product</button>
+        <button class="btn btn-ghost" onclick="closeModal('edit-modal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    const CAT_ICONS = { Supplement: '💊', Accessory: '🧤', Equipment: '🏋️' };
+    const CAT_BADGE = { Supplement: 'badge-green', Accessory: 'badge-blue', Equipment: 'badge-amber' };
+
+    function stockBadge(qty) {
+      if (qty === 0)  return '<span class="badge badge-red">Out of Stock</span>';
+      if (qty <= 10)  return `<span class="badge badge-amber">Low — ${qty}</span>`;
+      return `<span class="badge badge-green">In Stock — ${qty}</span>`;
+    }
+
+    function renderTable(filter = '', catFilter = '') {
+      let products = DB.get('products');
+      if (catFilter) products = products.filter(p => p.category === catFilter);
+      if (filter)    products = products.filter(p => p.product_name.toLowerCase().includes(filter));
+
+      document.getElementById('products-tbody').innerHTML = products.length
+        ? products.map(p => `
+          <tr>
+            <td class="td-muted">${p.id}</td>
+            <td class="fw-bold">${CAT_ICONS[p.category] || '📦'} ${p.product_name}</td>
+            <td><span class="badge ${CAT_BADGE[p.category] || 'badge-blue'}">${p.category}</span></td>
+            <td class="text-accent fw-bold font-display" style="font-size:16px">${fmt.currency(p.price)}</td>
+            <td class="td-muted">${p.stock_quantity}</td>
+            <td>${stockBadge(p.stock_quantity)}</td>
+            <td>
+              <div class="td-actions">
+                <button class="btn btn-ghost btn-sm" onclick="editProduct(${p.id})">✏️ Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">🗑 Delete</button>
+              </div>
+            </td>
+          </tr>
+        `).join('')
+        : '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">🛒</div><p>No products found.</p></div></td></tr>';
+    }
+
+    /* Live filters */
+    document.getElementById('search-input').addEventListener('input', applyFilters);
+    document.getElementById('category-filter').addEventListener('change', applyFilters);
+    function applyFilters() {
+      renderTable(
+        document.getElementById('search-input').value.toLowerCase(),
+        document.getElementById('category-filter').value
+      );
+    }
+
+    function addProduct() {
+      const name  = document.getElementById('f-name').value.trim();
+      const cat   = document.getElementById('f-cat').value;
+      const price = +document.getElementById('f-price').value;
+      const stock = +document.getElementById('f-stock').value;
+      if (!name || !cat || !price) { showToast('Fill all required fields.', 'error'); return; }
+      DB.insert('products', { product_name: name, category: cat, price, stock_quantity: stock });
+      closeModal('add-modal');
+      ['f-name','f-price','f-stock'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('f-cat').value = '';
+      applyFilters();
+      showToast(`Product "${name}" added!`);
+    }
+
+    function editProduct(id) {
+      const p = DB.get('products').find(r => r.id === id);
+      if (!p) return;
+      document.getElementById('ef-id').value    = p.id;
+      document.getElementById('ef-name').value  = p.product_name;
+      document.getElementById('ef-cat').value   = p.category;
+      document.getElementById('ef-price').value = p.price;
+      document.getElementById('ef-stock').value = p.stock_quantity;
+      openModal('edit-modal');
+    }
+
+    function saveEdit() {
+      const id   = +document.getElementById('ef-id').value;
+      const name = document.getElementById('ef-name').value.trim();
+      if (!name) { showToast('Product name required.', 'error'); return; }
+      DB.update('products', id, {
+        product_name: name,
+        category: document.getElementById('ef-cat').value,
+        price: +document.getElementById('ef-price').value,
+        stock_quantity: +document.getElementById('ef-stock').value,
+      });
+      closeModal('edit-modal');
+      applyFilters();
+      showToast(`Product "${name}" updated.`);
+    }
+
+    function deleteProduct(id) {
+      const p = DB.get('products').find(r => r.id === id);
+      if (!confirm(`Delete "${p?.product_name}"?`)) return;
+      DB.delete('products', id);
+      applyFilters();
+      showToast('Product deleted.', 'error');
+    }
+
+    renderTable();
+  </script>
+</body>
+</html>

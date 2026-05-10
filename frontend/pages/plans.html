@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Membership Plans — GymMS</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+  <!-- ── Sidebar ───────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">G</div>
+      <div class="logo-text">GymMS <span>Management System</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Main</div>
+      <a class="nav-item" data-page="dashboard" href="../index.html">
+        <span class="nav-icon">🏠</span> Dashboard
+      </a>
+      <div class="nav-label">Records</div>
+      <a class="nav-item" data-page="members" href="members.html">
+        <span class="nav-icon">👥</span> Members
+      </a>
+      <a class="nav-item" data-page="trainers" href="trainers.html">
+        <span class="nav-icon">🏋️</span> Trainers
+      </a>
+      <a class="nav-item active" data-page="plans" href="plans.html">
+        <span class="nav-icon">📋</span> Membership Plans
+      </a>
+      <div class="nav-label">Store</div>
+      <a class="nav-item" data-page="products" href="products.html">
+        <span class="nav-icon">🛒</span> Products
+      </a>
+      <a class="nav-item" data-page="purchases" href="purchases.html">
+        <span class="nav-icon">💳</span> Purchases
+      </a>
+    </nav>
+  </aside>
+
+  <!-- ── Main ──────────────────────────────────────────────── -->
+  <div class="main-wrap">
+    <header class="topbar">
+      <div>
+        <div class="topbar-title">Membership Plans</div>
+        <div class="topbar-subtitle">Configure plans and pricing</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-primary" onclick="openModal('add-modal')">
+          ＋ New Plan
+        </button>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <!-- Plan Cards -->
+      <div id="plan-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;margin-bottom:36px"></div>
+
+      <!-- Table -->
+      <div class="section-header">
+        <span class="section-title">All <span>Plans</span></span>
+      </div>
+      <div class="table-wrap">
+        <table id="plans-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Plan Name</th>
+              <th>Duration</th>
+              <th>Price</th>
+              <th>Price / Month</th>
+              <th>Members Enrolled</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="plans-tbody"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- ── Add Plan Modal ────────────────────────────────────── -->
+  <div class="modal-overlay" id="add-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Create Membership Plan</span>
+        <button class="modal-close" onclick="closeModal('add-modal')">✕</button>
+      </div>
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label>Plan Name *</label>
+          <input type="text" id="f-name" placeholder="e.g. Premium" />
+        </div>
+        <div class="form-group">
+          <label>Duration (months) *</label>
+          <input type="number" id="f-dur" min="1" max="24" placeholder="3" />
+        </div>
+        <div class="form-group">
+          <label>Price (₹) *</label>
+          <input type="number" id="f-price" min="0" placeholder="2499" />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="addPlan()">Save Plan</button>
+        <button class="btn btn-ghost" onclick="closeModal('add-modal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Edit Plan Modal ───────────────────────────────────── -->
+  <div class="modal-overlay" id="edit-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Edit Plan</span>
+        <button class="modal-close" onclick="closeModal('edit-modal')">✕</button>
+      </div>
+      <input type="hidden" id="ef-id" />
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label>Plan Name *</label>
+          <input type="text" id="ef-name" />
+        </div>
+        <div class="form-group">
+          <label>Duration (months) *</label>
+          <input type="number" id="ef-dur" min="1" max="24" />
+        </div>
+        <div class="form-group">
+          <label>Price (₹) *</label>
+          <input type="number" id="ef-price" min="0" />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="saveEdit()">Update Plan</button>
+        <button class="btn btn-ghost" onclick="closeModal('edit-modal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    const PLAN_COLORS = ['var(--accent)', 'var(--accent-green)', 'var(--accent-blue)', 'var(--accent-red)', '#c084fc'];
+    const PLAN_ICONS  = ['🥉','🥈','🥇','💎','🌟'];
+
+    function renderPage() {
+      const plans   = DB.get('plans');
+      const members = DB.get('members');
+      const mCount  = {};
+      members.forEach(m => { mCount[m.membership_id] = (mCount[m.membership_id] || 0) + 1; });
+
+      /* Cards */
+      document.getElementById('plan-cards').innerHTML = plans.map((p, i) => {
+        const color   = PLAN_COLORS[i % PLAN_COLORS.length];
+        const icon    = PLAN_ICONS[i % PLAN_ICONS.length];
+        const perMonth = Math.round(p.price / p.duration_months);
+        return `
+          <div class="stat-card" style="border-top:3px solid ${color}">
+            <div style="font-size:34px">${icon}</div>
+            <div class="font-display" style="font-size:28px;font-weight:900;color:${color}">${fmt.currency(p.price)}</div>
+            <div class="fw-bold" style="font-size:18px">${p.plan_name}</div>
+            <div style="font-size:13px;color:var(--text-secondary)">${p.duration_months} month${p.duration_months > 1 ? 's' : ''} &nbsp;·&nbsp; ${fmt.currency(perMonth)}/mo</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:4px">
+              👥 ${mCount[p.id] || 0} enrolled
+            </div>
+          </div>
+        `;
+      }).join('') || '<div class="empty-state"><div class="empty-icon">📋</div><p>No plans created yet.</p></div>';
+
+      /* Table */
+      document.getElementById('plans-tbody').innerHTML = plans.length
+        ? plans.map((p, i) => {
+          const perMonth = Math.round(p.price / p.duration_months);
+          return `
+            <tr>
+              <td class="td-muted">${p.id}</td>
+              <td class="fw-bold">${p.plan_name}</td>
+              <td>${p.duration_months} month${p.duration_months > 1 ? 's' : ''}</td>
+              <td class="text-accent fw-bold font-display" style="font-size:16px">${fmt.currency(p.price)}</td>
+              <td class="td-muted">${fmt.currency(perMonth)}</td>
+              <td><span class="badge badge-green">${mCount[p.id] || 0} members</span></td>
+              <td>
+                <div class="td-actions">
+                  <button class="btn btn-ghost btn-sm" onclick="editPlan(${p.id})">✏️ Edit</button>
+                  <button class="btn btn-danger btn-sm" onclick="deletePlan(${p.id})">🗑 Delete</button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('')
+        : '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">📋</div><p>No plans yet.</p></div></td></tr>';
+    }
+
+    function addPlan() {
+      const name  = document.getElementById('f-name').value.trim();
+      const dur   = +document.getElementById('f-dur').value;
+      const price = +document.getElementById('f-price').value;
+      if (!name || !dur || !price) { showToast('Fill all required fields.', 'error'); return; }
+      DB.insert('plans', { plan_name: name, duration_months: dur, price });
+      closeModal('add-modal');
+      ['f-name','f-dur','f-price'].forEach(id => document.getElementById(id).value = '');
+      renderPage();
+      showToast(`Plan "${name}" created!`);
+    }
+
+    function editPlan(id) {
+      const p = DB.get('plans').find(r => r.id === id);
+      if (!p) return;
+      document.getElementById('ef-id').value    = p.id;
+      document.getElementById('ef-name').value  = p.plan_name;
+      document.getElementById('ef-dur').value   = p.duration_months;
+      document.getElementById('ef-price').value = p.price;
+      openModal('edit-modal');
+    }
+
+    function saveEdit() {
+      const id   = +document.getElementById('ef-id').value;
+      const name = document.getElementById('ef-name').value.trim();
+      if (!name) { showToast('Plan name required.', 'error'); return; }
+      DB.update('plans', id, {
+        plan_name: name,
+        duration_months: +document.getElementById('ef-dur').value,
+        price: +document.getElementById('ef-price').value,
+      });
+      closeModal('edit-modal');
+      renderPage();
+      showToast(`Plan "${name}" updated.`);
+    }
+
+    function deletePlan(id) {
+      const p = DB.get('plans').find(r => r.id === id);
+      if (!confirm(`Delete plan "${p?.plan_name}"?`)) return;
+      DB.delete('plans', id);
+      renderPage();
+      showToast('Plan deleted.', 'error');
+    }
+
+    renderPage();
+  </script>
+</body>
+</html>

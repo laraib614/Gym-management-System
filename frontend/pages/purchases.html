@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Purchases — GymMS</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+  <!-- ── Sidebar ───────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">G</div>
+      <div class="logo-text">GymMS <span>Management System</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Main</div>
+      <a class="nav-item" data-page="dashboard" href="../index.html">
+        <span class="nav-icon">🏠</span> Dashboard
+      </a>
+      <div class="nav-label">Records</div>
+      <a class="nav-item" data-page="members" href="members.html">
+        <span class="nav-icon">👥</span> Members
+      </a>
+      <a class="nav-item" data-page="trainers" href="trainers.html">
+        <span class="nav-icon">🏋️</span> Trainers
+      </a>
+      <a class="nav-item" data-page="plans" href="plans.html">
+        <span class="nav-icon">📋</span> Membership Plans
+      </a>
+      <div class="nav-label">Store</div>
+      <a class="nav-item" data-page="products" href="products.html">
+        <span class="nav-icon">🛒</span> Products
+      </a>
+      <a class="nav-item active" data-page="purchases" href="purchases.html">
+        <span class="nav-icon">💳</span> Purchases
+      </a>
+    </nav>
+  </aside>
+
+  <!-- ── Main ──────────────────────────────────────────────── -->
+  <div class="main-wrap">
+    <header class="topbar">
+      <div>
+        <div class="topbar-title">Purchases</div>
+        <div class="topbar-subtitle">Track product purchases by members</div>
+      </div>
+      <div class="topbar-right">
+        <div class="search-bar">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-input" placeholder="Search by member or product…" />
+        </div>
+        <button class="btn btn-primary" onclick="openModal('add-modal')">
+          ＋ Record Purchase
+        </button>
+      </div>
+    </header>
+
+    <main class="page-content">
+
+      <!-- Revenue Summary -->
+      <div class="stats-grid" id="revenue-stats" style="margin-bottom:28px"></div>
+
+      <!-- Table -->
+      <div class="section-header">
+        <span class="section-title">Purchase <span>History</span></span>
+      </div>
+      <div class="table-wrap">
+        <table id="purchases-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Member</th>
+              <th>Product</th>
+              <th>Category</th>
+              <th>Qty</th>
+              <th>Unit Price</th>
+              <th>Total</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="purchases-tbody"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- ── Record Purchase Modal ─────────────────────────────── -->
+  <div class="modal-overlay" id="add-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Record Purchase</span>
+        <button class="modal-close" onclick="closeModal('add-modal')">✕</button>
+      </div>
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label>Member *</label>
+          <select id="f-member"></select>
+        </div>
+        <div class="form-group full-width">
+          <label>Product *</label>
+          <select id="f-product" onchange="updatePreview()"></select>
+        </div>
+        <div class="form-group">
+          <label>Quantity *</label>
+          <input type="number" id="f-qty" min="1" value="1" oninput="updatePreview()" />
+        </div>
+        <div class="form-group">
+          <label>Purchase Date *</label>
+          <input type="date" id="f-date" />
+        </div>
+        <!-- Live price preview -->
+        <div class="form-group full-width" id="price-preview" style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px;display:none">
+          <div style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:6px">Order Preview</div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span id="preview-label" style="font-size:14px;color:var(--text-secondary)"></span>
+            <span id="preview-total" class="font-display text-accent" style="font-size:26px;font-weight:900"></span>
+          </div>
+          <div id="preview-stock" style="font-size:12px;color:var(--text-muted);margin-top:4px"></div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" onclick="recordPurchase()">Confirm Purchase</button>
+        <button class="btn btn-ghost" onclick="closeModal('add-modal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/app.js"></script>
+  <script>
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('f-date').value = today;
+
+    /* Populate dropdowns */
+    function fillDropdowns() {
+      const members  = DB.get('members');
+      const products = DB.get('products');
+      document.getElementById('f-member').innerHTML =
+        members.map(m => `<option value="${m.id}">${m.name}</option>`).join('') ||
+        '<option value="">No members</option>';
+      document.getElementById('f-product').innerHTML =
+        products.map(p => `<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock_quantity}">${p.product_name} — ${fmt.currency(p.price)}</option>`).join('') ||
+        '<option value="">No products</option>';
+      updatePreview();
+    }
+
+    function updatePreview() {
+      const sel   = document.getElementById('f-product');
+      const opt   = sel.options[sel.selectedIndex];
+      const qty   = +document.getElementById('f-qty').value || 1;
+      const price = +(opt?.dataset.price || 0);
+      const stock = +(opt?.dataset.stock || 0);
+      if (!opt || !price) { document.getElementById('price-preview').style.display = 'none'; return; }
+      document.getElementById('price-preview').style.display = 'block';
+      document.getElementById('preview-label').textContent = `${qty} × ${fmt.currency(price)}`;
+      document.getElementById('preview-total').textContent  = fmt.currency(qty * price);
+      document.getElementById('preview-stock').textContent  = `Stock available: ${stock}`;
+      document.getElementById('preview-stock').style.color  = stock < qty ? 'var(--accent-red)' : 'var(--text-muted)';
+    }
+
+    /* Revenue stats */
+    function renderStats() {
+      const purchases = DB.get('purchases');
+      const total     = purchases.reduce((s, p) => s + Number(p.total_price), 0);
+      const today     = new Date().toISOString().split('T')[0];
+      const todayRev  = purchases.filter(p => p.purchase_date === today).reduce((s, p) => s + Number(p.total_price), 0);
+      const maxQty    = purchases.reduce((s, p) => s + Number(p.quantity), 0);
+
+      document.getElementById('revenue-stats').innerHTML = [
+        { icon: '💳', value: purchases.length,     label: 'Total Purchases'  },
+        { icon: '💰', value: fmt.currency(total),   label: 'Total Revenue'   },
+        { icon: '📦', value: maxQty,               label: 'Units Sold'       },
+        { icon: '📅', value: fmt.currency(todayRev),label: "Today's Revenue"  },
+      ].map(s => `
+        <div class="stat-card">
+          <div class="stat-icon">${s.icon}</div>
+          <div class="stat-value">${s.value}</div>
+          <div class="stat-label">${s.label}</div>
+        </div>
+      `).join('');
+    }
+
+    /* Main table */
+    function renderTable() {
+      const purchases = DB.get('purchases');
+      const members   = Object.fromEntries(DB.get('members').map(m => [m.id, m.name]));
+      const products  = Object.fromEntries(DB.get('products').map(p => [p.id, p]));
+
+      document.getElementById('purchases-tbody').innerHTML = purchases.length
+        ? [...purchases].reverse().map(p => {
+          const prod = products[p.product_id] || {};
+          const unit = prod.price || (p.quantity ? Math.round(p.total_price / p.quantity) : 0);
+          return `
+            <tr>
+              <td class="td-muted">${p.id}</td>
+              <td class="fw-bold">${members[p.member_id] || '—'}</td>
+              <td>${prod.product_name || '—'}</td>
+              <td><span class="badge badge-blue">${prod.category || '—'}</span></td>
+              <td class="td-muted">×${p.quantity}</td>
+              <td class="td-muted">${fmt.currency(unit)}</td>
+              <td class="text-green fw-bold font-display" style="font-size:16px">${fmt.currency(p.total_price)}</td>
+              <td class="td-muted">${fmt.date(p.purchase_date)}</td>
+              <td>
+                <button class="btn btn-danger btn-sm" onclick="deletePurchase(${p.id})">🗑</button>
+              </td>
+            </tr>
+          `;
+        }).join('')
+        : '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">💳</div><p>No purchases recorded yet.</p></div></td></tr>';
+
+      setupTableSearch('search-input', 'purchases-table');
+    }
+
+    /* Record */
+    function recordPurchase() {
+      const memberId  = +document.getElementById('f-member').value;
+      const prodSel   = document.getElementById('f-product');
+      const productId = +prodSel.value;
+      const qty       = +document.getElementById('f-qty').value;
+      const date      = document.getElementById('f-date').value;
+      const price     = +(prodSel.options[prodSel.selectedIndex]?.dataset.price || 0);
+      const stock     = +(prodSel.options[prodSel.selectedIndex]?.dataset.stock || 0);
+
+      if (!memberId || !productId || !qty || !date) { showToast('Fill all fields.', 'error'); return; }
+      if (qty > stock) { showToast(`Only ${stock} units in stock!`, 'error'); return; }
+
+      DB.insert('purchases', {
+        member_id: memberId, product_id: productId,
+        quantity: qty, total_price: qty * price, purchase_date: date,
+      });
+
+      /* Deduct stock */
+      DB.update('products', productId, { stock_quantity: stock - qty });
+
+      closeModal('add-modal');
+      document.getElementById('f-qty').value = 1;
+      fillDropdowns();
+      renderStats();
+      renderTable();
+      showToast('Purchase recorded successfully!');
+    }
+
+    function deletePurchase(id) {
+      if (!confirm('Delete this purchase record?')) return;
+      DB.delete('purchases', id);
+      renderStats();
+      renderTable();
+      showToast('Purchase deleted.', 'error');
+    }
+
+    fillDropdowns();
+    renderStats();
+    renderTable();
+  </script>
+</body>
+</html>
