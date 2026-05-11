@@ -8,7 +8,6 @@
 </head>
 <body>
 
-  <!-- ── Sidebar ───────────────────────────────────────────── -->
   <aside class="sidebar">
     <div class="sidebar-logo">
       <div class="logo-icon">G</div>
@@ -16,78 +15,56 @@
     </div>
     <nav class="sidebar-nav">
       <div class="nav-label">Main</div>
-      <a class="nav-item" data-page="dashboard" href="../index.html">
-        <span class="nav-icon">🏠</span> Dashboard
-      </a>
+      <a class="nav-item" href="../index.html"><span class="nav-icon">🏠</span> Dashboard</a>
       <div class="nav-label">Records</div>
-      <a class="nav-item" data-page="members" href="members.html">
-        <span class="nav-icon">👥</span> Members
-      </a>
-      <a class="nav-item" data-page="trainers" href="trainers.html">
-        <span class="nav-icon">🏋️</span> Trainers
-      </a>
-      <a class="nav-item" data-page="plans" href="plans.html">
-        <span class="nav-icon">📋</span> Membership Plans
-      </a>
+      <a class="nav-item" href="members.html"><span class="nav-icon">👥</span> Members</a>
+      <a class="nav-item" href="trainers.html"><span class="nav-icon">🏋️</span> Trainers</a>
+      <a class="nav-item" href="plans.html"><span class="nav-icon">📋</span> Membership Plans</a>
       <div class="nav-label">Store</div>
-      <a class="nav-item" data-page="products" href="products.html">
-        <span class="nav-icon">🛒</span> Products
-      </a>
-      <a class="nav-item active" data-page="purchases" href="purchases.html">
-        <span class="nav-icon">💳</span> Purchases
-      </a>
+      <a class="nav-item" href="products.html"><span class="nav-icon">🛒</span> Products</a>
+      <a class="nav-item active" href="purchases.html"><span class="nav-icon">💳</span> Purchases</a>
     </nav>
   </aside>
 
-  <!-- ── Main ──────────────────────────────────────────────── -->
   <div class="main-wrap">
     <header class="topbar">
       <div>
         <div class="topbar-title">Purchases</div>
-        <div class="topbar-subtitle">Track product purchases by members</div>
+        <div class="topbar-subtitle">MySQL: Purchase table — member product purchases</div>
       </div>
       <div class="topbar-right">
         <div class="search-bar">
           <span class="search-icon">🔍</span>
-          <input type="text" id="search-input" placeholder="Search by member or product…" />
+          <input type="text" id="search-input" placeholder="Search member or product…" />
         </div>
-        <button class="btn btn-primary" onclick="openModal('add-modal')">
-          ＋ Record Purchase
-        </button>
+        <button class="btn btn-primary" onclick="openRecordModal()">＋ Record Purchase</button>
       </div>
     </header>
 
     <main class="page-content">
 
-      <!-- Revenue Summary -->
-      <div class="stats-grid" id="revenue-stats" style="margin-bottom:28px"></div>
+      <!-- Revenue Stats -->
+      <div class="stats-grid" id="revenue-stats" style="margin-bottom:28px">
+        <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-value">…</div><div class="stat-label">Loading</div></div>
+      </div>
 
-      <!-- Table -->
       <div class="section-header">
         <span class="section-title">Purchase <span>History</span></span>
       </div>
       <div class="table-wrap">
         <table id="purchases-table">
           <thead>
-            <tr>
-              <th>#</th>
-              <th>Member</th>
-              <th>Product</th>
-              <th>Category</th>
-              <th>Qty</th>
-              <th>Unit Price</th>
-              <th>Total</th>
-              <th>Date</th>
-              <th>Actions</th>
-            </tr>
+            <tr><th>ID</th><th>Member</th><th>Product</th><th>Category</th><th>Qty</th><th>Unit Price</th><th>Total</th><th>Date</th><th>Actions</th></tr>
           </thead>
-          <tbody id="purchases-tbody"></tbody>
+          <tbody id="purchases-tbody">
+            <tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted)">⏳ Loading…</td></tr>
+          </tbody>
         </table>
       </div>
     </main>
   </div>
 
-  <!-- ── Record Purchase Modal ─────────────────────────────── -->
+  <!-- Record Purchase Modal -->
   <div class="modal-overlay" id="add-modal">
     <div class="modal">
       <div class="modal-header">
@@ -97,11 +74,11 @@
       <div class="form-grid">
         <div class="form-group full-width">
           <label>Member *</label>
-          <select id="f-member"></select>
+          <select id="f-member"><option value="">Loading members…</option></select>
         </div>
         <div class="form-group full-width">
           <label>Product *</label>
-          <select id="f-product" onchange="updatePreview()"></select>
+          <select id="f-product" onchange="updatePreview()"><option value="">Loading products…</option></select>
         </div>
         <div class="form-group">
           <label>Quantity *</label>
@@ -111,9 +88,10 @@
           <label>Purchase Date *</label>
           <input type="date" id="f-date" />
         </div>
-        <!-- Live price preview -->
-        <div class="form-group full-width" id="price-preview" style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px;display:none">
-          <div style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:6px">Order Preview</div>
+        <!-- Live preview -->
+        <div class="form-group full-width" id="price-preview"
+          style="display:none;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:6px">Order Preview</div>
           <div style="display:flex;justify-content:space-between;align-items:center">
             <span id="preview-label" style="font-size:14px;color:var(--text-secondary)"></span>
             <span id="preview-total" class="font-display text-accent" style="font-size:26px;font-weight:900"></span>
@@ -130,20 +108,29 @@
 
   <script src="../js/app.js"></script>
   <script>
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('f-date').value = today;
+    document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
 
-    /* Populate dropdowns */
-    function fillDropdowns() {
-      const members  = DB.get('members');
-      const products = DB.get('products');
+    /* Cache products for price preview */
+    let productCache = [];
+
+    async function openRecordModal() {
+      /* Load fresh members and products from MySQL */
+      const [mRes, pRes] = await Promise.all([apiGet('members'), apiGet('products')]);
+
       document.getElementById('f-member').innerHTML =
-        members.map(m => `<option value="${m.id}">${m.name}</option>`).join('') ||
-        '<option value="">No members</option>';
+        (mRes.data || []).map(m => `<option value="${m.member_id}">${m.name}</option>`).join('') ||
+        '<option value="">No members found</option>';
+
+      productCache = pRes.data || [];
       document.getElementById('f-product').innerHTML =
-        products.map(p => `<option value="${p.id}" data-price="${p.price}" data-stock="${p.stock_quantity}">${p.product_name} — ${fmt.currency(p.price)}</option>`).join('') ||
-        '<option value="">No products</option>';
+        productCache.map(p =>
+          `<option value="${p.product_id}" data-price="${p.price}" data-stock="${p.stock_quantity}">
+            ${p.product_name} — ${fmt.currency(p.price)} (stock: ${p.stock_quantity})
+          </option>`
+        ).join('') || '<option value="">No products found</option>';
+
       updatePreview();
+      openModal('add-modal');
     }
 
     function updatePreview() {
@@ -152,107 +139,95 @@
       const qty   = +document.getElementById('f-qty').value || 1;
       const price = +(opt?.dataset.price || 0);
       const stock = +(opt?.dataset.stock || 0);
-      if (!opt || !price) { document.getElementById('price-preview').style.display = 'none'; return; }
+      if (!price) { document.getElementById('price-preview').style.display = 'none'; return; }
       document.getElementById('price-preview').style.display = 'block';
-      document.getElementById('preview-label').textContent = `${qty} × ${fmt.currency(price)}`;
-      document.getElementById('preview-total').textContent  = fmt.currency(qty * price);
-      document.getElementById('preview-stock').textContent  = `Stock available: ${stock}`;
-      document.getElementById('preview-stock').style.color  = stock < qty ? 'var(--accent-red)' : 'var(--text-muted)';
+      document.getElementById('preview-label').textContent   = `${qty} × ${fmt.currency(price)}`;
+      document.getElementById('preview-total').textContent   = fmt.currency(qty * price);
+      document.getElementById('preview-stock').textContent   = `Available stock: ${stock}`;
+      document.getElementById('preview-stock').style.color   = stock < qty ? 'var(--accent-red)' : 'var(--text-muted)';
     }
 
-    /* Revenue stats */
-    function renderStats() {
-      const purchases = DB.get('purchases');
-      const total     = purchases.reduce((s, p) => s + Number(p.total_price), 0);
-      const today     = new Date().toISOString().split('T')[0];
-      const todayRev  = purchases.filter(p => p.purchase_date === today).reduce((s, p) => s + Number(p.total_price), 0);
-      const maxQty    = purchases.reduce((s, p) => s + Number(p.quantity), 0);
+    async function loadPurchases() {
+      const res = await apiGet('purchases');
+      if (!res.success) {
+        document.getElementById('purchases-tbody').innerHTML =
+          `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--accent-red)">❌ Failed to load. Is XAMPP running?</td></tr>`;
+        return;
+      }
 
+      /* Revenue stats */
+      const total = res.summary?.total_revenue || 0;
+      const count = res.summary?.total_purchases || 0;
+      const totalQty = res.data.reduce((s,p) => s + +p.quantity, 0);
       document.getElementById('revenue-stats').innerHTML = [
-        { icon: '💳', value: purchases.length,     label: 'Total Purchases'  },
-        { icon: '💰', value: fmt.currency(total),   label: 'Total Revenue'   },
-        { icon: '📦', value: maxQty,               label: 'Units Sold'       },
-        { icon: '📅', value: fmt.currency(todayRev),label: "Today's Revenue"  },
+        { icon:'💳', value: count,              label:'Total Purchases' },
+        { icon:'💰', value: fmt.currency(total), label:'Total Revenue'  },
+        { icon:'📦', value: totalQty,            label:'Units Sold'     },
       ].map(s => `
         <div class="stat-card">
           <div class="stat-icon">${s.icon}</div>
           <div class="stat-value">${s.value}</div>
           <div class="stat-label">${s.label}</div>
-        </div>
-      `).join('');
-    }
+        </div>`).join('');
 
-    /* Main table */
-    function renderTable() {
-      const purchases = DB.get('purchases');
-      const members   = Object.fromEntries(DB.get('members').map(m => [m.id, m.name]));
-      const products  = Object.fromEntries(DB.get('products').map(p => [p.id, p]));
-
-      document.getElementById('purchases-tbody').innerHTML = purchases.length
-        ? [...purchases].reverse().map(p => {
-          const prod = products[p.product_id] || {};
-          const unit = prod.price || (p.quantity ? Math.round(p.total_price / p.quantity) : 0);
-          return `
+      /* Table */
+      document.getElementById('purchases-tbody').innerHTML = res.data.length
+        ? res.data.map(p => `
             <tr>
-              <td class="td-muted">${p.id}</td>
-              <td class="fw-bold">${members[p.member_id] || '—'}</td>
-              <td>${prod.product_name || '—'}</td>
-              <td><span class="badge badge-blue">${prod.category || '—'}</span></td>
+              <td class="td-muted">${p.purchase_id}</td>
+              <td class="fw-bold">${p.member_name}</td>
+              <td>${p.product_name}</td>
+              <td><span class="badge badge-blue">${p.category}</span></td>
               <td class="td-muted">×${p.quantity}</td>
-              <td class="td-muted">${fmt.currency(unit)}</td>
+              <td class="td-muted">${fmt.currency(p.unit_price)}</td>
               <td class="text-green fw-bold font-display" style="font-size:16px">${fmt.currency(p.total_price)}</td>
               <td class="td-muted">${fmt.date(p.purchase_date)}</td>
               <td>
-                <button class="btn btn-danger btn-sm" onclick="deletePurchase(${p.id})">🗑</button>
+                <button class="btn btn-danger btn-sm" onclick="deletePurchase(${p.purchase_id})">🗑</button>
               </td>
-            </tr>
-          `;
-        }).join('')
-        : '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">💳</div><p>No purchases recorded yet.</p></div></td></tr>';
+            </tr>`).join('')
+        : `<tr><td colspan="9"><div class="empty-state">
+            <div class="empty-icon">💳</div><p>No purchases yet.</p></div></td></tr>`;
 
       setupTableSearch('search-input', 'purchases-table');
     }
 
-    /* Record */
-    function recordPurchase() {
+    async function recordPurchase() {
       const memberId  = +document.getElementById('f-member').value;
-      const prodSel   = document.getElementById('f-product');
-      const productId = +prodSel.value;
+      const sel       = document.getElementById('f-product');
+      const productId = +sel.value;
       const qty       = +document.getElementById('f-qty').value;
       const date      = document.getElementById('f-date').value;
-      const price     = +(prodSel.options[prodSel.selectedIndex]?.dataset.price || 0);
-      const stock     = +(prodSel.options[prodSel.selectedIndex]?.dataset.stock || 0);
+      const stock     = +(sel.options[sel.selectedIndex]?.dataset.stock || 0);
 
-      if (!memberId || !productId || !qty || !date) { showToast('Fill all fields.', 'error'); return; }
-      if (qty > stock) { showToast(`Only ${stock} units in stock!`, 'error'); return; }
+      if (!memberId || !productId || !qty || !date) {
+        showToast('Fill all fields.', 'error'); return;
+      }
+      if (qty > stock) {
+        showToast(`Only ${stock} units in stock!`, 'error'); return;
+      }
 
-      DB.insert('purchases', {
+      const res = await apiPost('purchases', {
         member_id: memberId, product_id: productId,
-        quantity: qty, total_price: qty * price, purchase_date: date,
+        quantity: qty, purchase_date: date,
       });
 
-      /* Deduct stock */
-      DB.update('products', productId, { stock_quantity: stock - qty });
-
-      closeModal('add-modal');
-      document.getElementById('f-qty').value = 1;
-      fillDropdowns();
-      renderStats();
-      renderTable();
-      showToast('Purchase recorded successfully!');
+      if (res.success) {
+        closeModal('add-modal');
+        document.getElementById('f-qty').value = 1;
+        showToast(res.message);
+        loadPurchases();
+      } else showToast(res.error || 'Failed.', 'error');
     }
 
-    function deletePurchase(id) {
-      if (!confirm('Delete this purchase record?')) return;
-      DB.delete('purchases', id);
-      renderStats();
-      renderTable();
-      showToast('Purchase deleted.', 'error');
+    async function deletePurchase(id) {
+      if (!confirm('Delete this purchase? Stock will be restored.')) return;
+      const res = await apiDelete('purchases', { purchase_id: id });
+      if (res.success) { showToast(res.message); loadPurchases(); }
+      else showToast(res.error, 'error');
     }
 
-    fillDropdowns();
-    renderStats();
-    renderTable();
+    loadPurchases();
   </script>
 </body>
 </html>

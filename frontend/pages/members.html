@@ -8,7 +8,6 @@
 </head>
 <body>
 
-  <!-- ── Sidebar ───────────────────────────────────────────── -->
   <aside class="sidebar">
     <div class="sidebar-logo">
       <div class="logo-icon">G</div>
@@ -16,44 +15,29 @@
     </div>
     <nav class="sidebar-nav">
       <div class="nav-label">Main</div>
-      <a class="nav-item" data-page="dashboard" href="../index.html">
-        <span class="nav-icon">🏠</span> Dashboard
-      </a>
+      <a class="nav-item" href="../index.html"><span class="nav-icon">🏠</span> Dashboard</a>
       <div class="nav-label">Records</div>
-      <a class="nav-item active" data-page="members" href="members.html">
-        <span class="nav-icon">👥</span> Members
-      </a>
-      <a class="nav-item" data-page="trainers" href="trainers.html">
-        <span class="nav-icon">🏋️</span> Trainers
-      </a>
-      <a class="nav-item" data-page="plans" href="plans.html">
-        <span class="nav-icon">📋</span> Membership Plans
-      </a>
+      <a class="nav-item active" href="members.html"><span class="nav-icon">👥</span> Members</a>
+      <a class="nav-item" href="trainers.html"><span class="nav-icon">🏋️</span> Trainers</a>
+      <a class="nav-item" href="plans.html"><span class="nav-icon">📋</span> Membership Plans</a>
       <div class="nav-label">Store</div>
-      <a class="nav-item" data-page="products" href="products.html">
-        <span class="nav-icon">🛒</span> Products
-      </a>
-      <a class="nav-item" data-page="purchases" href="purchases.html">
-        <span class="nav-icon">💳</span> Purchases
-      </a>
+      <a class="nav-item" href="products.html"><span class="nav-icon">🛒</span> Products</a>
+      <a class="nav-item" href="purchases.html"><span class="nav-icon">💳</span> Purchases</a>
     </nav>
   </aside>
 
-  <!-- ── Main ──────────────────────────────────────────────── -->
   <div class="main-wrap">
     <header class="topbar">
       <div>
         <div class="topbar-title">Members</div>
-        <div class="topbar-subtitle">Manage gym members</div>
+        <div class="topbar-subtitle">Manage gym members — MySQL: Member table</div>
       </div>
       <div class="topbar-right">
         <div class="search-bar">
           <span class="search-icon">🔍</span>
           <input type="text" id="search-input" placeholder="Search members…" />
         </div>
-        <button class="btn btn-primary" onclick="openModal('add-modal')">
-          ＋ Add Member
-        </button>
+        <button class="btn btn-primary" onclick="openModal('add-modal')">＋ Add Member</button>
       </div>
     </header>
 
@@ -62,66 +46,36 @@
         <table id="members-table">
           <thead>
             <tr>
-              <th>#</th>
-              <th>Name</th>
-              <th>Age</th>
-              <th>Gender</th>
-              <th>Phone</th>
-              <th>Join Date</th>
-              <th>Plan</th>
-              <th>Trainer</th>
-              <th>Actions</th>
+              <th>ID</th><th>Name</th><th>Age</th><th>Gender</th>
+              <th>Phone</th><th>Join Date</th><th>Plan</th><th>Trainer</th><th>Actions</th>
             </tr>
           </thead>
-          <tbody id="members-tbody"></tbody>
+          <tbody id="members-tbody">
+            <tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text-muted)">⏳ Loading…</td></tr>
+          </tbody>
         </table>
       </div>
     </main>
   </div>
 
-  <!-- ── Add Member Modal ──────────────────────────────────── -->
+  <!-- Add Modal -->
   <div class="modal-overlay" id="add-modal">
     <div class="modal">
       <div class="modal-header">
         <span class="modal-title">Add New Member</span>
         <button class="modal-close" onclick="closeModal('add-modal')">✕</button>
       </div>
-      <div class="form-grid" id="add-form">
-        <div class="form-group">
-          <label>Full Name *</label>
-          <input type="text" id="f-name" placeholder="e.g. Ankit Gupta" />
-        </div>
-        <div class="form-group">
-          <label>Age *</label>
-          <input type="number" id="f-age" min="10" max="99" placeholder="25" />
-        </div>
+      <div class="form-grid">
+        <div class="form-group"><label>Full Name *</label><input type="text" id="f-name" placeholder="e.g. Arjun" /></div>
+        <div class="form-group"><label>Age *</label><input type="number" id="f-age" min="10" max="99" /></div>
         <div class="form-group">
           <label>Gender *</label>
-          <select id="f-gender">
-            <option value="">Select…</option>
-            <option>Male</option>
-            <option>Female</option>
-            <option>Other</option>
-          </select>
+          <select id="f-gender"><option value="">Select…</option><option>Male</option><option>Female</option><option>Other</option></select>
         </div>
-        <div class="form-group">
-          <label>Phone</label>
-          <input type="tel" id="f-phone" placeholder="10-digit number" />
-        </div>
-        <div class="form-group">
-          <label>Join Date *</label>
-          <input type="date" id="f-join" />
-        </div>
-        <div class="form-group">
-          <label>Membership Plan *</label>
-          <select id="f-plan"></select>
-        </div>
-        <div class="form-group">
-          <label>Assign Trainer</label>
-          <select id="f-trainer">
-            <option value="">— No Trainer —</option>
-          </select>
-        </div>
+        <div class="form-group"><label>Phone</label><input type="tel" id="f-phone" placeholder="10-digit" /></div>
+        <div class="form-group"><label>Join Date *</label><input type="date" id="f-join" /></div>
+        <div class="form-group"><label>Membership Plan *</label><select id="f-plan"><option value="">Loading…</option></select></div>
+        <div class="form-group"><label>Assign Trainer</label><select id="f-trainer"><option value="">— No Trainer —</option></select></div>
       </div>
       <div class="form-actions">
         <button class="btn btn-primary" onclick="addMember()">Save Member</button>
@@ -130,7 +84,7 @@
     </div>
   </div>
 
-  <!-- ── Edit Member Modal ─────────────────────────────────── -->
+  <!-- Edit Modal -->
   <div class="modal-overlay" id="edit-modal">
     <div class="modal">
       <div class="modal-header">
@@ -139,38 +93,16 @@
       </div>
       <input type="hidden" id="ef-id" />
       <div class="form-grid">
-        <div class="form-group">
-          <label>Full Name *</label>
-          <input type="text" id="ef-name" />
-        </div>
-        <div class="form-group">
-          <label>Age *</label>
-          <input type="number" id="ef-age" min="10" max="99" />
-        </div>
+        <div class="form-group"><label>Full Name *</label><input type="text" id="ef-name" /></div>
+        <div class="form-group"><label>Age *</label><input type="number" id="ef-age" min="10" max="99" /></div>
         <div class="form-group">
           <label>Gender *</label>
-          <select id="ef-gender">
-            <option>Male</option><option>Female</option><option>Other</option>
-          </select>
+          <select id="ef-gender"><option>Male</option><option>Female</option><option>Other</option></select>
         </div>
-        <div class="form-group">
-          <label>Phone</label>
-          <input type="tel" id="ef-phone" />
-        </div>
-        <div class="form-group">
-          <label>Join Date *</label>
-          <input type="date" id="ef-join" />
-        </div>
-        <div class="form-group">
-          <label>Membership Plan *</label>
-          <select id="ef-plan"></select>
-        </div>
-        <div class="form-group">
-          <label>Assign Trainer</label>
-          <select id="ef-trainer">
-            <option value="">— No Trainer —</option>
-          </select>
-        </div>
+        <div class="form-group"><label>Phone</label><input type="tel" id="ef-phone" /></div>
+        <div class="form-group"><label>Join Date *</label><input type="date" id="ef-join" /></div>
+        <div class="form-group"><label>Membership Plan *</label><select id="ef-plan"></select></div>
+        <div class="form-group"><label>Assign Trainer</label><select id="ef-trainer"><option value="">— No Trainer —</option></select></div>
       </div>
       <div class="form-actions">
         <button class="btn btn-primary" onclick="saveEdit()">Update Member</button>
@@ -181,117 +113,139 @@
 
   <script src="../js/app.js"></script>
   <script>
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('f-join').value = today;
+    document.getElementById('f-join').value = new Date().toISOString().split('T')[0];
 
-    /* Populate dropdowns */
-    function fillDropdowns(planSel, trainerSel) {
-      const plans    = DB.get('plans');
-      const trainers = DB.get('trainers');
-      planSel.innerHTML    = plans.map(p => `<option value="${p.id}">${p.plan_name} (${p.duration_months}mo — ${fmt.currency(p.price)})</option>`).join('');
-      trainerSel.innerHTML = '<option value="">— No Trainer —</option>' +
-        trainers.map(t => `<option value="${t.id}">${t.trainer_name} — ${t.specialization}</option>`).join('');
+    /* Load dropdown options from MySQL */
+    async function loadDropdowns() {
+      const [plansRes, trainersRes] = await Promise.all([apiGet('plans'), apiGet('trainers')]);
+
+      const planOpts = (plansRes.data || []).map(p =>
+        `<option value="${p.membership_id}">${p.plan_name} (${p.duration_months}mo — ${fmt.currency(p.price)})</option>`
+      ).join('');
+      const trainerOpts = '<option value="">— No Trainer —</option>' +
+        (trainersRes.data || []).map(t =>
+          `<option value="${t.trainer_id}">${t.trainer_name} — ${t.specialization}</option>`
+        ).join('');
+
+      ['f-plan', 'ef-plan'].forEach(id => document.getElementById(id).innerHTML = planOpts);
+      ['f-trainer', 'ef-trainer'].forEach(id => document.getElementById(id).innerHTML = trainerOpts);
     }
-    fillDropdowns(document.getElementById('f-plan'), document.getElementById('f-trainer'));
-    fillDropdowns(document.getElementById('ef-plan'), document.getElementById('ef-trainer'));
 
-    /* Render table */
-    function renderTable() {
-      const members  = DB.get('members');
-      const plans    = Object.fromEntries(DB.get('plans').map(p => [p.id, p.plan_name]));
-      const trainers = Object.fromEntries(DB.get('trainers').map(t => [t.id, t.trainer_name]));
+    /* Render table from MySQL data */
+    async function loadMembers() {
+      const res = await apiGet('members');
+      if (!res.success) {
+        document.getElementById('members-tbody').innerHTML =
+          `<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--accent-red)">
+            ❌ Failed to load. Is XAMPP running?</td></tr>`;
+        return;
+      }
 
-      document.getElementById('members-tbody').innerHTML = members.length
-        ? members.map(m => `
-          <tr>
-            <td class="td-muted">${m.id}</td>
-            <td class="fw-bold">${m.name}</td>
-            <td>${m.age}</td>
-            <td><span class="badge ${m.gender==='Male'?'badge-blue':'badge-green'}">${m.gender}</span></td>
-            <td class="td-muted">${m.phone || '—'}</td>
-            <td class="td-muted">${fmt.date(m.join_date)}</td>
-            <td><span class="badge badge-amber">${plans[m.membership_id] || '—'}</span></td>
-            <td class="td-muted">${trainers[m.trainer_id] || '—'}</td>
-            <td>
-              <div class="td-actions">
-                <button class="btn btn-ghost btn-sm" onclick="editMember(${m.id})">✏️ Edit</button>
-                <button class="btn btn-danger btn-sm" onclick="deleteMember(${m.id})">🗑 Delete</button>
-              </div>
-            </td>
-          </tr>
-        `).join('')
-        : '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">👥</div><p>No members yet. Add your first member!</p></div></td></tr>';
+      document.getElementById('members-tbody').innerHTML = res.data.length
+        ? res.data.map(m => `
+            <tr>
+              <td class="td-muted">${m.member_id}</td>
+              <td class="fw-bold">${m.name}</td>
+              <td>${m.age}</td>
+              <td><span class="badge ${m.gender==='Male'?'badge-blue':'badge-green'}">${m.gender}</span></td>
+              <td class="td-muted">${m.phone || '—'}</td>
+              <td class="td-muted">${fmt.date(m.join_date)}</td>
+              <td><span class="badge badge-amber">${m.plan_name || '—'}</span></td>
+              <td class="td-muted">${m.trainer_name || '—'}</td>
+              <td>
+                <div class="td-actions">
+                  <button class="btn btn-ghost btn-sm" onclick='editMember(${JSON.stringify(m)})'>✏️ Edit</button>
+                  <button class="btn btn-danger btn-sm" onclick="deleteMember(${m.member_id}, '${m.name}')">🗑 Delete</button>
+                </div>
+              </td>
+            </tr>`).join('')
+        : `<tr><td colspan="9"><div class="empty-state">
+            <div class="empty-icon">👥</div><p>No members in database yet.</p></div></td></tr>`;
 
       setupTableSearch('search-input', 'members-table');
     }
 
-    /* Add */
-    function addMember() {
-      const name = document.getElementById('f-name').value.trim();
-      const age  = document.getElementById('f-age').value;
+    /* Add member → POST to MySQL */
+    async function addMember() {
+      const name   = document.getElementById('f-name').value.trim();
+      const age    = document.getElementById('f-age').value;
       const gender = document.getElementById('f-gender').value;
-      const join  = document.getElementById('f-join').value;
-      const plan  = document.getElementById('f-plan').value;
-      if (!name || !age || !gender || !join || !plan) { showToast('Please fill all required fields.', 'error'); return; }
+      const join   = document.getElementById('f-join').value;
+      const planId = document.getElementById('f-plan').value;
 
-      DB.insert('members', {
+      if (!name || !age || !gender || !join || !planId) {
+        showToast('Please fill all required fields.', 'error'); return;
+      }
+
+      const res = await apiPost('members', {
         name, age: +age, gender,
-        phone: document.getElementById('f-phone').value,
-        join_date: join,
-        membership_id: +plan,
-        trainer_id: +document.getElementById('f-trainer').value || null,
+        phone:         document.getElementById('f-phone').value,
+        join_date:     join,
+        membership_id: +planId,
+        trainer_id:    +document.getElementById('f-trainer').value || null,
       });
-      closeModal('add-modal');
-      document.getElementById('f-name').value = '';
-      document.getElementById('f-age').value  = '';
-      document.getElementById('f-phone').value = '';
-      renderTable();
-      showToast(`Member "${name}" added successfully!`);
+
+      if (res.success) {
+        closeModal('add-modal');
+        ['f-name','f-age','f-phone'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('f-gender').value = '';
+        showToast(res.message);
+        loadMembers();
+      } else {
+        showToast(res.error || 'Failed to add member.', 'error');
+      }
     }
 
-    /* Edit */
-    function editMember(id) {
-      const m = DB.get('members').find(r => r.id === id);
-      if (!m) return;
-      document.getElementById('ef-id').value    = m.id;
-      document.getElementById('ef-name').value  = m.name;
-      document.getElementById('ef-age').value   = m.age;
-      document.getElementById('ef-gender').value = m.gender;
-      document.getElementById('ef-phone').value = m.phone;
-      document.getElementById('ef-join').value  = m.join_date;
-      document.getElementById('ef-plan').value  = m.membership_id;
+    /* Populate edit form */
+    function editMember(m) {
+      document.getElementById('ef-id').value      = m.member_id;
+      document.getElementById('ef-name').value    = m.name;
+      document.getElementById('ef-age').value     = m.age;
+      document.getElementById('ef-gender').value  = m.gender;
+      document.getElementById('ef-phone').value   = m.phone;
+      document.getElementById('ef-join').value    = m.join_date;
+      document.getElementById('ef-plan').value    = m.membership_id;
       document.getElementById('ef-trainer').value = m.trainer_id || '';
       openModal('edit-modal');
     }
 
-    function saveEdit() {
-      const id = +document.getElementById('ef-id').value;
+    /* Save edit → PUT to MySQL */
+    async function saveEdit() {
+      const id   = +document.getElementById('ef-id').value;
       const name = document.getElementById('ef-name').value.trim();
       if (!name) { showToast('Name is required.', 'error'); return; }
-      DB.update('members', id, {
+
+      const res = await apiPut('members', {
+        member_id:     id,
         name,
-        age: +document.getElementById('ef-age').value,
-        gender: document.getElementById('ef-gender').value,
-        phone: document.getElementById('ef-phone').value,
-        join_date: document.getElementById('ef-join').value,
+        age:           +document.getElementById('ef-age').value,
+        gender:        document.getElementById('ef-gender').value,
+        phone:         document.getElementById('ef-phone').value,
+        join_date:     document.getElementById('ef-join').value,
         membership_id: +document.getElementById('ef-plan').value,
-        trainer_id: +document.getElementById('ef-trainer').value || null,
+        trainer_id:    +document.getElementById('ef-trainer').value || null,
       });
-      closeModal('edit-modal');
-      renderTable();
-      showToast(`Member "${name}" updated.`);
+
+      if (res.success) {
+        closeModal('edit-modal');
+        showToast(res.message);
+        loadMembers();
+      } else {
+        showToast(res.error || 'Update failed.', 'error');
+      }
     }
 
-    /* Delete */
-    function deleteMember(id) {
-      const m = DB.get('members').find(r => r.id === id);
-      if (!confirm(`Delete member "${m?.name}"? This cannot be undone.`)) return;
-      DB.delete('members', id);
-      renderTable();
-      showToast(`Member deleted.`, 'error');
+    /* Delete member → DELETE to MySQL */
+    async function deleteMember(id, name) {
+      if (!confirm(`Delete member "${name}"?\nThis will also delete their purchase records.`)) return;
+      const res = await apiDelete('members', { member_id: id });
+      if (res.success) { showToast(res.message); loadMembers(); }
+      else showToast(res.error || 'Delete failed.', 'error');
     }
 
-    renderTable();
+    /* Init */
+    loadDropdowns();
+    loadMembers();
   </script>
 </body>
 </html>

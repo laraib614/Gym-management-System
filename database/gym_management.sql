@@ -1,5 +1,5 @@
-CREATE DATABASE gym_management;
-USE gym_management;
+-- CREATE DATABASE gym_management;
+-- USE gym_management;
 
 -- membership table
 CREATE TABLE Membership_Plan (
@@ -69,9 +69,9 @@ VALUES
 
 INSERT INTO Trainer (trainer_name, specialization, phone, salary)
 VALUES
-('Rahul Sharma', 'Weight Training', '9876543210', 30000.00),
-('Amit Verma', 'Cardio Training', '9876543211', 28000.00),
-('Priya Singh', 'Yoga', '9876543212', 25000.00);
+('Rahul', 'Weight Training', '9876543210', 30000.00),
+('Laraib', 'Cardio Training', '9876543211', 28000.00),
+('Nadeem', 'Yoga', '9876543212', 25000.00);
 
 INSERT INTO Product (product_name, category, price, stock_quantity)
 VALUES
@@ -85,9 +85,9 @@ INSERT INTO Member
 (name, age, gender, phone, join_date, membership_id, trainer_id)
 VALUES
 ('Arjun', 22, 'Male', '9991110001', '2025-09-01', 1, 1),
-('Sneha', 21, 'Female', '9991110002', '2025-09-02', 2, 2),
+('Manan', 21, 'Male', '9991110002', '2025-09-02', 2, 2),
 ('Rohan', 24, 'Male', '9991110003', '2025-09-03', 3, 1),
-('Anjali', 23, 'Female', '9991110004', '2025-09-04', 1, 3);
+('Rishav', 23, 'Male', '9991110004', '2025-09-04', 1, 3);
 
 INSERT INTO Purchase
 (member_id, product_id, quantity, total_price, purchase_date)
