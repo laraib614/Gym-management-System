@@ -34,6 +34,12 @@ switch ($method) {
         $name  = $conn->real_escape_string(trim($body['trainer_name'] ?? ''));
         $spec  = $conn->real_escape_string(trim($body['specialization'] ?? ''));
         $phone = $conn->real_escape_string(trim($body['phone'] ?? ''));
+        if (!preg_match('/^[0-9]{10}$/', $phone)) {
+    sendJSON([
+        'success' => false,
+        'error' => 'Phone number must be exactly 10 digits.'
+    ], 400);
+}
         $sal   = (float)($body['salary'] ?? 0);
 
         if (!$name || !$spec) {
@@ -54,6 +60,12 @@ switch ($method) {
         $name  = $conn->real_escape_string(trim($body['trainer_name'] ?? ''));
         $spec  = $conn->real_escape_string(trim($body['specialization'] ?? ''));
         $phone = $conn->real_escape_string(trim($body['phone'] ?? ''));
+        if (!preg_match('/^[0-9]{10}$/', $phone)) {
+    sendJSON([
+        'success' => false,
+        'error' => 'Phone number must be exactly 10 digits.'
+    ], 400);
+}
         $sal   = (float)($body['salary'] ?? 0);
 
         if (!$id || !$name) {

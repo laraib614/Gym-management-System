@@ -45,6 +45,12 @@ switch ($method) {
         $age   = (int)($body['age'] ?? 0);
         $gender= $conn->real_escape_string(trim($body['gender'] ?? ''));
         $phone = $conn->real_escape_string(trim($body['phone'] ?? ''));
+        if (!preg_match('/^[0-9]{10}$/', $phone)) {
+    sendJSON([
+        'success' => false,
+        'error' => 'Phone number must be exactly 10 digits.'
+    ], 400);
+}
         $date  = $conn->real_escape_string(trim($body['join_date'] ?? date('Y-m-d')));
         $planId= (int)($body['membership_id'] ?? 0);
         $trnId = (int)($body['trainer_id'] ?? 0);
@@ -70,6 +76,12 @@ switch ($method) {
         $age   = (int)($body['age'] ?? 0);
         $gender= $conn->real_escape_string(trim($body['gender'] ?? ''));
         $phone = $conn->real_escape_string(trim($body['phone'] ?? ''));
+        if (!preg_match('/^[0-9]{10}$/', $phone)) {
+    sendJSON([
+        'success' => false,
+        'error' => 'Phone number must be exactly 10 digits.'
+    ], 400);
+}
         $date  = $conn->real_escape_string(trim($body['join_date'] ?? ''));
         $planId= (int)($body['membership_id'] ?? 0);
         $trnId = (int)($body['trainer_id'] ?? 0);

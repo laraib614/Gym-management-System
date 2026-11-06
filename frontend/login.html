@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login — Fitness Freak</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --accent:      #f5a623;
+      --accent-dim:  #b87a18;
+      --accent-glow: rgba(245,166,35,0.18);
+      --bg-dark:     #0a0b0e;
+      --bg-card:     #13151a;
+      --bg-elevated: #1a1d24;
+      --text-primary:   #ecedf0;
+      --text-secondary: #8a8f9e;
+      --text-muted:     #555b6b;
+      --border:      #1e2130;
+      --border-hover:#2e3347;
+      --accent-red:  #e84040;
+      --font-display: 'Barlow Condensed', sans-serif;
+      --font-body:    'Barlow', sans-serif;
+    }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Background effects */
+    .bg-glow {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 50% at 50% 0%, rgba(245,166,35,0.09) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 40% at 10% 90%, rgba(59,141,224,0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(245,166,35,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(245,166,35,0.03) 1px, transparent 1px);
+      background-size: 56px 56px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent);
+      pointer-events: none;
+    }
+
+    /* Back link */
+    .back-link {
+      position: fixed;
+      top: 24px;
+      left: 28px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+      z-index: 10;
+    }
+    .back-link:hover { color: var(--accent); }
+
+    /* Login card */
+    .login-wrap {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 440px;
+      padding: 24px;
+      animation: fadeInUp 0.5s ease both;
+    }
+
+    /* Logo */
+    .login-logo {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .login-logo-icon {
+      width: 60px; height: 60px;
+      background: var(--accent);
+      border-radius: 14px;
+      display: inline-grid;
+      place-items: center;
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 26px;
+      color: #000;
+      margin-bottom: 14px;
+      box-shadow: 0 0 32px rgba(245,166,35,0.3);
+    }
+    .login-gym-name {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--text-primary);
+      letter-spacing: 1px;
+    }
+    .login-gym-name span { color: var(--accent); }
+    .login-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 6px;
+      letter-spacing: 0.3px;
+    }
+
+    /* Card */
+    .login-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 32px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+      position: relative;
+      overflow: hidden;
+    }
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+    .login-card-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+    .login-card-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+    }
+
+    /* Form */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-bottom: 18px;
+    }
+    label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--text-muted);
+    }
+    .input-wrap {
+      position: relative;
+    }
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      pointer-events: none;
+      opacity: 0.5;
+    }
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      padding: 12px 14px 12px 42px;
+      font-size: 14px;
+      font-family: var(--font-body);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(245,166,35,0.15);
+    }
+    input::placeholder { color: var(--text-muted); }
+
+    /* Toggle password */
+    .toggle-pass {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 0;
+      transition: color 0.15s;
+    }
+    .toggle-pass:hover { color: var(--text-secondary); }
+
+    /* Error */
+    .error-msg {
+      background: rgba(232,64,64,0.1);
+      border: 1px solid rgba(232,64,64,0.3);
+      color: #e84040;
+      border-radius: 8px;
+      padding: 11px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 18px;
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+    .error-msg.show { display: flex; }
+
+    /* Submit button */
+    .btn-login {
+      width: 100%;
+      background: var(--accent);
+      color: #000;
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      padding: 13px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-login:hover {
+      background: #ffc146;
+      box-shadow: 0 0 28px rgba(245,166,35,0.35);
+      transform: translateY(-1px);
+    }
+    .btn-login:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Divider */
+    .login-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 24px 0 20px;
+    }
+    .login-hint {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .login-hint strong { color: var(--text-secondary); }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-glow"></div>
+  <div class="bg-grid"></div>
+
+  <a href="landing.html" class="back-link">← Back to Website</a>
+
+  <div class="login-wrap">
+    <div class="login-logo">
+      <div class="login-logo-icon">FF</div>
+      <div class="login-gym-name">Fitness <span>Freak</span></div>
+      <div class="login-subtitle">Gym Management System</div>
+    </div>
+
+    <div class="login-card">
+      <div class="login-card-title">Admin Login</div>
+      <div class="login-card-sub">Sign in to access the management dashboard</div>
+
+      <div class="error-msg" id="error-msg">
+        <span>⚠️</span><span id="error-text">Invalid credentials.</span>
+      </div>
+
+      <div class="form-group">
+        <label>Username</label>
+        <div class="input-wrap">
+          <span class="input-icon">👤</span>
+          <input type="text" id="username" placeholder="Enter admin username" autocomplete="username" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-wrap">
+          <span class="input-icon">🔒</span>
+          <input type="password" id="password" placeholder="Enter password" autocomplete="current-password" />
+          <button class="toggle-pass" type="button" onclick="togglePassword()" id="toggle-btn">👁</button>
+        </div>
+      </div>
+
+      <button class="btn-login" id="login-btn" onclick="doLogin()">
+        🔐 Sign In to Dashboard
+      </button>
+
+      <div class="login-divider"></div>
+      <div class="login-hint">
+        Authorised personnel only. <strong>Single admin account.</strong><br />
+        Contact the gym owner if you need access.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // const API = 'http://localhost:8080/Gym-management-System/frontend/api';
+    const API = '/Gym-management-System/frontend/api';
+
+    // If already logged in, redirect to dashboard
+    (async () => {
+      try {
+const res = await fetch(`${API}/check_session.php`, {
+  credentials: 'include'
+});
+        const data = await res.json();
+        if (data.success) window.location.href = './index.html';
+      } catch (_) {}
+    })();
+
+    function togglePassword() {
+      const inp = document.getElementById('password');
+      const btn = document.getElementById('toggle-btn');
+      if (inp.type === 'password') {
+        inp.type = 'text';
+        btn.textContent = '🙈';
+      } else {
+        inp.type = 'password';
+        btn.textContent = '👁';
+      }
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('error-msg');
+      document.getElementById('error-text').textContent = msg;
+      el.classList.add('show');
+    }
+    function hideError() {
+      document.getElementById('error-msg').classList.remove('show');
+    }
+
+    async function doLogin() {
+      hideError();
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const btn      = document.getElementById('login-btn');
+
+      if (!username || !password) {
+        showError('Please enter both username and password.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = '⏳ Signing in…';
+
+      try {
+    const res = await fetch(`${API}/auth.php`, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  credentials: 'include',
+  body: JSON.stringify({ username, password })
+});
+        const data = await res.json();
+
+        if (data.success) {
+          btn.textContent = '✅ Redirecting…';
+          window.location.href = 'index.html';
+        } else {
+          showError(data.error || 'Invalid username or password.');
+          btn.disabled = false;
+          btn.innerHTML = '🔐 Sign In to Dashboard';
+        }
+      } catch (err) {
+        showError('Cannot reach server. Is XAMPP running?');
+        btn.disabled = false;
+        btn.innerHTML = '🔐 Sign In to Dashboard';
+      }
+    }
+
+    // Allow Enter key to submit
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') doLogin();
+    });
+  </script>
+</body>
+</html>

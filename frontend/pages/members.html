@@ -72,7 +72,14 @@
           <label>Gender *</label>
           <select id="f-gender"><option value="">Select…</option><option>Male</option><option>Female</option><option>Other</option></select>
         </div>
-        <div class="form-group"><label>Phone</label><input type="tel" id="f-phone" placeholder="10-digit" /></div>
+        <div class="form-group"><label>Phone</label><input 
+    type="tel"
+    id="f-phone"
+    placeholder="10-digit"
+    maxlength="10"
+    pattern="[0-9]{10}"
+    inputmode="numeric"
+/></div>
         <div class="form-group"><label>Join Date *</label><input type="date" id="f-join" /></div>
         <div class="form-group"><label>Membership Plan *</label><select id="f-plan"><option value="">Loading…</option></select></div>
         <div class="form-group"><label>Assign Trainer</label><select id="f-trainer"><option value="">— No Trainer —</option></select></div>
@@ -99,7 +106,13 @@
           <label>Gender *</label>
           <select id="ef-gender"><option>Male</option><option>Female</option><option>Other</option></select>
         </div>
-        <div class="form-group"><label>Phone</label><input type="tel" id="ef-phone" /></div>
+        <div class="form-group"><label>Phone</label><input
+    type="tel"
+    id="ef-phone"
+    maxlength="10"
+    pattern="[0-9]{10}"
+    inputmode="numeric"
+/></div>
         <div class="form-group"><label>Join Date *</label><input type="date" id="ef-join" /></div>
         <div class="form-group"><label>Membership Plan *</label><select id="ef-plan"></select></div>
         <div class="form-group"><label>Assign Trainer</label><select id="ef-trainer"><option value="">— No Trainer —</option></select></div>
@@ -167,35 +180,58 @@
 
     /* Add member → POST to MySQL */
     async function addMember() {
-      const name   = document.getElementById('f-name').value.trim();
-      const age    = document.getElementById('f-age').value;
-      const gender = document.getElementById('f-gender').value;
-      const join   = document.getElementById('f-join').value;
-      const planId = document.getElementById('f-plan').value;
 
-      if (!name || !age || !gender || !join || !planId) {
-        showToast('Please fill all required fields.', 'error'); return;
-      }
+  const name   = document.getElementById('f-name').value.trim();
+  const age    = document.getElementById('f-age').value;
+  const gender = document.getElementById('f-gender').value;
+  const join   = document.getElementById('f-join').value;
+  const planId = document.getElementById('f-plan').value;
+  const phone  = document.getElementById('f-phone').value.trim();
 
-      const res = await apiPost('members', {
-        name, age: +age, gender,
-        phone:         document.getElementById('f-phone').value,
-        join_date:     join,
-        membership_id: +planId,
-        trainer_id:    +document.getElementById('f-trainer').value || null,
-      });
+  if (!name || !age || !gender || !join || !planId) {
+    showToast('Please fill all required fields.', 'error');
+    return;
+  }
 
-      if (res.success) {
-        closeModal('add-modal');
-        ['f-name','f-age','f-phone'].forEach(id => document.getElementById(id).value = '');
-        document.getElementById('f-gender').value = '';
-        showToast(res.message);
-        loadMembers();
-      } else {
-        showToast(res.error || 'Failed to add member.', 'error');
-      }
-    }
+  if (age < 10 || age > 99) {
+    showToast('Age must be between 10 and 99.', 'error');
+    return;
+  }
 
+  if (!/^\d{10}$/.test(phone)) {
+    showToast('Phone number must be exactly 10 digits.', 'error');
+    return;
+  }
+
+  const res = await apiPost('members', {
+    name,
+    age: +age,
+    gender,
+    phone,
+    join_date: join,
+    membership_id: +planId,
+    trainer_id: +document.getElementById('f-trainer').value || null,
+  });
+
+  if (res.success) {
+
+    closeModal('add-modal');
+
+    ['f-name','f-age','f-phone'].forEach(id =>
+      document.getElementById(id).value = ''
+    );
+
+    document.getElementById('f-gender').value = '';
+
+    showToast(res.message);
+
+    loadMembers();
+
+  } else {
+
+    showToast(res.error || 'Failed to add member.', 'error');
+  }
+}
     /* Populate edit form */
     function editMember(m) {
       document.getElementById('ef-id').value      = m.member_id;
@@ -211,29 +247,51 @@
 
     /* Save edit → PUT to MySQL */
     async function saveEdit() {
-      const id   = +document.getElementById('ef-id').value;
-      const name = document.getElementById('ef-name').value.trim();
-      if (!name) { showToast('Name is required.', 'error'); return; }
 
-      const res = await apiPut('members', {
-        member_id:     id,
-        name,
-        age:           +document.getElementById('ef-age').value,
-        gender:        document.getElementById('ef-gender').value,
-        phone:         document.getElementById('ef-phone').value,
-        join_date:     document.getElementById('ef-join').value,
-        membership_id: +document.getElementById('ef-plan').value,
-        trainer_id:    +document.getElementById('ef-trainer').value || null,
-      });
+  const id     = +document.getElementById('ef-id').value;
+  const name   = document.getElementById('ef-name').value.trim();
+  const age    = document.getElementById('ef-age').value;
+  const phone  = document.getElementById('ef-phone').value.trim();
 
-      if (res.success) {
-        closeModal('edit-modal');
-        showToast(res.message);
-        loadMembers();
-      } else {
-        showToast(res.error || 'Update failed.', 'error');
-      }
-    }
+  if (!name) {
+    showToast('Name is required.', 'error');
+    return;
+  }
+
+  if (age < 10 || age > 99) {
+    showToast('Age must be between 10 and 99.', 'error');
+    return;
+  }
+
+  if (!/^\d{10}$/.test(phone)) {
+    showToast('Phone number must be exactly 10 digits.', 'error');
+    return;
+  }
+
+  const res = await apiPut('members', {
+    member_id: id,
+    name,
+    age: +age,
+    gender: document.getElementById('ef-gender').value,
+    phone,
+    join_date: document.getElementById('ef-join').value,
+    membership_id: +document.getElementById('ef-plan').value,
+    trainer_id: +document.getElementById('ef-trainer').value || null,
+  });
+
+  if (res.success) {
+
+    closeModal('edit-modal');
+
+    showToast(res.message);
+
+    loadMembers();
+
+  } else {
+
+    showToast(res.error || 'Update failed.', 'error');
+  }
+}
 
     /* Delete member → DELETE to MySQL */
     async function deleteMember(id, name) {
